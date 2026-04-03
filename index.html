@@ -14,47 +14,27 @@ body{
   color:white;
 }
 
-.container{max-width:500px;margin:auto;padding:20px;}
+.container{max-width:500px;margin:auto;padding:15px;}
 
-.card{
-  background:rgba(255,255,255,0.05);
-  border-radius:20px;
-  padding:20px;
-  margin-top:20px;
+/* HEADER */
+.top{
+  font-size:0.9rem;
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
 }
-
-/* EXERCISE */
-.exercise{font-size:1.5rem;font-weight:600;}
-.reps{opacity:0.7;}
-.setinfo{opacity:0.6;margin-top:5px;}
-
-button{
-  width:100%;
-  padding:15px;
-  margin-top:15px;
-  border:none;
-  border-radius:15px;
-  background:#22c55e;
-  font-weight:600;
-}
-
-/* TIMER */
-.timer{font-size:2rem;text-align:center;margin-top:10px;}
-
-/* PROGRESS */
-.progress{height:8px;background:#1e293b;border-radius:10px;margin-top:10px;}
-.fill{height:100%;background:#22c55e;width:0%;}
 
 /* CALENDAR */
 #calendar{
   display:grid;
   grid-template-columns: repeat(7,1fr);
-  gap:6px;
+  gap:5px;
+  margin-bottom:15px;
 }
 
 .day{
   aspect-ratio:1;
-  border-radius:10px;
+  border-radius:8px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -64,6 +44,60 @@ button{
 
 .done{background:#22c55e;color:black;}
 .multi{background:#a855f7;color:white;font-weight:600;}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.05);
+  border-radius:25px;
+  padding:25px;
+  text-align:center;
+}
+
+/* CIRCLE */
+.circle{
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  background:conic-gradient(#22c55e 0deg,#1e293b 0deg);
+  margin:0 auto 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.inner{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:#020617;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.2rem;
+}
+
+/* TEXT */
+.exercise{font-size:1.5rem;font-weight:600;}
+.reps{opacity:0.7;}
+.setinfo{opacity:0.6;font-size:0.9rem;margin-top:5px;}
+
+.timer{font-size:2rem;margin-top:10px;}
+
+/* BUTTON */
+button{
+  margin-top:15px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:20px;
+  background:#22c55e;
+  font-weight:600;
+}
+
+.secondary{
+  background:#334155;
+  color:white;
+}
 </style>
 </head>
 
@@ -71,10 +105,22 @@ button{
 
 <div class="container">
 
-<h2>RepQuest</h2>
-<p>XP: <span id="xp">0</span> | Level: <span id="level">1</span> | Streak: <span id="streak">0</span></p>
+<div class="top">
+<div>XP: <span id="xp">0</span></div>
+<div>Lvl: <span id="level">1</span></div>
+<div>Streak: <span id="streak">0</span></div>
+</div>
 
+<!-- CALENDAR ALWAYS VISIBLE -->
+<div id="calendar"></div>
+
+<!-- WORKOUT CARD -->
 <div class="card">
+
+<div class="circle" id="circle">
+<div class="inner" id="percent">0%</div>
+</div>
+
 <div class="exercise" id="exercise">Ready?</div>
 <div class="reps" id="reps"></div>
 <div class="setinfo" id="setinfo"></div>
@@ -82,21 +128,14 @@ button{
 <div class="timer" id="timer"></div>
 
 <button id="btn" onclick="next()">Start Workout</button>
+<button class="secondary" onclick="resetSession()">Reset Session</button>
 
-<div class="progress"><div id="fill" class="fill"></div></div>
-
-<button onclick="resetSession()" style="background:#334155;color:white;">Reset Session</button>
-</div>
-
-<div class="card">
-<h3>Progress Calendar</h3>
-<div id="calendar"></div>
 </div>
 
 </div>
 
 <script>
-// ===== WORKOUT =====
+// WORKOUT
 const workout=[
 ["Push-ups",10],
 ["Wide Push-ups",10],
@@ -111,33 +150,41 @@ const workout=[
 
 let i=-1,resting=false,timerInt;
 
-// ===== STORAGE =====
+// STORAGE
 let xp=+localStorage.xp||0;
 let streak=+localStorage.streak||0;
 let last=localStorage.last||"";
 let completedDays=JSON.parse(localStorage.completedDays||"{}");
 
-// ===== STREAK =====
+// STREAK
 let today=new Date().toDateString();
 if(last!==today){
   streak++;
   localStorage.last=today;
 }
 
-// ===== UPDATE UI =====
+// UPDATE STATS
 function updateStats(){
   xpSpan.innerText=xp;
   level.innerText=Math.floor(xp/100)+1;
   streakSpan.innerText=streak;
 }
 
-// ===== RENDER =====
+// CIRCLE UPDATE
+function updateCircle(){
+  let percentVal=Math.max(0,(i+1)/workout.length);
+  let deg=percentVal*360;
+  circle.style.background=`conic-gradient(#22c55e ${deg}deg,#1e293b ${deg}deg)`;
+  percent.innerText=Math.round(percentVal*100)+"%";
+}
+
+// RENDER
 function render(){
   if(i<0){
     exercise.innerText="Ready?";
     reps.innerText="";
     setinfo.innerText="";
-    fill.style.width="0%";
+    updateCircle();
     return;
   }
 
@@ -151,10 +198,10 @@ function render(){
     localStorage.xp=xp;
 
     markDay();
-
-    updateStats();
     renderCalendar();
+    updateStats();
 
+    percent.innerText="100%";
     return;
   }
 
@@ -162,10 +209,10 @@ function render(){
   reps.innerText=workout[i][1]+" reps";
   setinfo.innerText=`Set ${i+1}/${workout.length}`;
 
-  fill.style.width=((i+1)/workout.length*100)+"%";
+  updateCircle();
 }
 
-// ===== REST =====
+// REST
 function rest(){
   let t=45;
   resting=true;
@@ -184,7 +231,7 @@ function rest(){
   },1000);
 }
 
-// ===== FLOW =====
+// FLOW
 function next(){
   if(resting) return;
   i++;
@@ -192,20 +239,19 @@ function next(){
   render();
 }
 
-// ===== RESET SESSION ONLY =====
+// RESET SESSION
 function resetSession(){
   i=-1;
   render();
 }
 
-// ===== CALENDAR LOGIC =====
+// CALENDAR
 function markDay(){
   let date=new Date().toISOString().split("T")[0];
   completedDays[date]=(completedDays[date]||0)+1;
   localStorage.completedDays=JSON.stringify(completedDays);
 }
 
-// ===== RENDER CALENDAR =====
 function renderCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
@@ -213,7 +259,6 @@ function renderCalendar(){
   let now=new Date();
   let year=now.getFullYear();
   let month=now.getMonth();
-
   let days=new Date(year,month+1,0).getDate();
 
   for(let d=1;d<=days;d++){
@@ -221,7 +266,6 @@ function renderCalendar(){
     
     let div=document.createElement("div");
     div.classList.add("day");
-    div.innerText=d;
 
     if(completedDays[dateStr]){
       if(completedDays[dateStr]===1){
@@ -231,13 +275,15 @@ function renderCalendar(){
         div.classList.add("multi");
         div.innerText=completedDays[dateStr];
       }
+    } else {
+      div.innerText=d;
     }
 
     cal.appendChild(div);
   }
 }
 
-// ===== INIT =====
+// INIT
 updateStats();
 render();
 renderCalendar();
