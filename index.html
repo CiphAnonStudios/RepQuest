@@ -3,284 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RepQuest</title>
+<title>RepQuest Coach</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
-body{
+body {
   margin:0;
   font-family:'Poppins',sans-serif;
   background:#0f172a;
   color:white;
 }
-
-/* NAV */
-.nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  background:#1e293b;
-}
-
-.nav div{
-  flex:1;
-  text-align:center;
-  padding:12px;
-  cursor:pointer;
-  opacity:0.6;
-}
-
-.nav .active{
-  opacity:1;
-  background:#22c55e;
-  color:black;
-}
-
-/* CONTAINER */
-.container{
+.container {
   max-width:500px;
   margin:auto;
   padding:20px;
   padding-bottom:80px;
 }
-
-/* CARD */
-.card{
+h1 {text-align:center;}
+.card {
   background:#1e293b;
   border-radius:20px;
-  padding:20px;
-  margin-top:15px;
+  padding:25px;
+  margin-top:20px;
+  text-align:center;
 }
-
-/* EXERCISE */
-.exercise{
-  display:flex;
-  justify-content:space-between;
-  padding:12px;
-  background:#334155;
-  border-radius:12px;
-  margin-bottom:8px;
+.exercise-name {
+  font-size:1.5rem;
+  font-weight:600;
+  margin-bottom:10px;
 }
-
-.exercise.active{background:#22c55e;color:black;}
-.exercise.done{opacity:0.4;}
-
-/* BUTTON */
-button{
+.reps {font-size:1.2rem; opacity:0.8; margin-bottom:15px;}
+.timer {font-size:2rem; margin:20px 0;}
+button {
+  padding:15px;
   width:100%;
-  padding:14px;
   border:none;
   border-radius:15px;
   background:#22c55e;
   color:black;
   font-weight:600;
-  margin-top:10px;
+  cursor:pointer;
 }
-
-/* PROGRESS */
-.progress{
+button:disabled {background:#475569; cursor:not-allowed;}
+.progress {
   height:10px;
   background:#334155;
   border-radius:10px;
   overflow:hidden;
+  margin-top:20px;
 }
-
-.fill{
+.progress-fill {
   height:100%;
-  background:#22c55e;
   width:0%;
+  background:#22c55e;
+  transition:0.3s;
 }
-
-/* TIMER */
-.timer{
-  text-align:center;
-  font-size:2rem;
+.stats {
+  display:flex;
+  justify-content:space-between;
   margin-top:10px;
+  font-size:0.9rem;
+  opacity:0.8;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
-<!-- TRAIN TAB -->
-<div id="trainTab">
-<h2>Train</h2>
-
-<select id="workoutSelect">
-<option value="push">Push</option>
-<option value="pull">Pull</option>
-<option value="legs">Legs</option>
-</select>
+<h1>RepQuest Coach</h1>
+<div class="stats">
+<div>XP: <span id="xp">0</span></div>
+<div>Level: <span id="level">1</span></div>
+<div>Streak: <span id="streak">0</span></div>
+</div>
 
 <div class="card">
-<div id="exerciseList"></div>
-
-<div class="progress"><div id="fill" class="fill"></div></div>
-
-<button id="btn" onclick="next()">Start</button>
-<div id="timer" class="timer"></div>
+<div class="exercise-name" id="exerciseName">Ready?</div>
+<div class="reps" id="reps"></div>
+<div class="timer" id="timer"></div>
+<button id="actionBtn" onclick="nextStep()">Start Workout</button>
+<div class="progress">
+<div id="progressFill" class="progress-fill"></div>
 </div>
 </div>
-
-<!-- PROGRESS TAB -->
-<div id="progressTab" style="display:none">
-<h2>Progress</h2>
-
-<div class="card">
-<p>XP: <span id="xp"></span></p>
-<p>Level: <span id="level"></span></p>
-<p>Streak: <span id="streak"></span></p>
-<p>Sessions Completed: <span id="sessions"></span></p>
-</div>
-
-</div>
-
-<!-- SETTINGS -->
-<div id="settingsTab" style="display:none">
-<h2>Settings</h2>
-
-<div class="card">
-<button onclick="resetData()">Reset All Data</button>
-</div>
-</div>
-
-</div>
-
-<!-- NAV -->
-<div class="nav">
-<div onclick="switchTab('train')" id="trainBtn" class="active">Train</div>
-<div onclick="switchTab('progress')" id="progressBtn">Progress</div>
-<div onclick="switchTab('settings')" id="settingsBtn">Settings</div>
 </div>
 
 <script>
-// ===== WORKOUTS =====
-const workouts = {
-push:[
-["Push-ups",10],["Wide",10],["Diamond",10],["Pike",10],["Decline",10]
-],
-pull:[
-["Pull-ups",8],["Chin-ups",8],["Rows",10]
-],
-legs:[
-["Squats",15],["Lunges",10],["Jump Squats",10]
-]
-};
+// ===== WORKOUT PLAN =====
+const workout = [
+  ["Normal Push-ups", 10],
+  ["Wide Push-ups", 10],
+  ["Diamond Push-ups", 10],
+  ["Pike Push-ups", 10],
+  ["Decline Push-ups", 10],
+  ["Archer Push-ups", 10],
+  ["Explosive Push-ups", 10],
+  ["Spiderman Push-ups", 10],
+  ["Slow Tempo Push-ups", 10]
+];
 
 // ===== STATE =====
-let i=-1, resting=false, timerInt;
+let index = -1;
+let resting = false;
+let timerInterval;
 
 // ===== STORAGE =====
-let xp=+localStorage.xp||0;
-let streak=+localStorage.streak||0;
-let sessions=+localStorage.sessions||0;
-let last=localStorage.last||"";
+let xp = parseInt(localStorage.getItem("xp")) || 0;
+let streak = parseInt(localStorage.getItem("streak")) || 0;
+let lastDate = localStorage.getItem("lastDate") || "";
 
-// STREAK
-let today=new Date().toDateString();
-if(last!==today){streak++;localStorage.last=today;}
+// DAILY STREAK
+let today = new Date().toDateString();
+if(lastDate !== today){ streak++; localStorage.setItem("lastDate", today); }
 
-// ===== UI =====
-function updateStats(){
-xpSpan.innerText=xp;
-level.innerText=Math.floor(xp/100)+1;
-streakSpan.innerText=streak;
-sessionsSpan.innerText=sessions;
+// ===== UPDATE STATS =====
+function updateStats() {
+  document.getElementById("xp").innerText = xp;
+  document.getElementById("level").innerText = Math.floor(xp/100)+1;
+  document.getElementById("streak").innerText = streak;
 }
 
-// ===== RENDER =====
-function render(){
-let w=workouts[workoutSelect.value];
-exerciseList.innerHTML="";
-
-w.forEach((e,index)=>{
-let div=document.createElement("div");
-div.className="exercise";
-
-if(index<i) div.classList.add("done");
-if(index===i) div.classList.add("active");
-
-div.innerHTML=`<span>${e[0]}</span><span>${e[1]}</span>`;
-exerciseList.appendChild(div);
-});
-
-fill.style.width=((i+1)/w.length*100)+"%";
+// ===== RENDER EXERCISE =====
+function renderExercise() {
+  if(index < 0) {
+    exerciseName.innerText = "Ready?";
+    reps.innerText = "";
+    progressFill.style.width = "0%";
+    return;
+  }
+  if(index >= workout.length){
+    exerciseName.innerText = "Workout Complete!";
+    reps.innerText = "";
+    actionBtn.disabled = true;
+    xp += 50;
+    localStorage.setItem("xp", xp);
+    updateStats();
+    progressFill.style.width = "100%";
+    return;
+  }
+  exerciseName.innerText = workout[index][0];
+  reps.innerText = workout[index][1] + " reps";
+  progressFill.style.width = ((index+1)/workout.length*100) + "%";
 }
 
-// ===== TIMER =====
-function rest(){
-let t=45;
-resting=true;
-btn.disabled=true;
-
-timerInt=setInterval(()=>{
-timer.innerText=t+"s";
-t--;
-
-if(t<0){
-clearInterval(timerInt);
-timer.innerText="";
-resting=false;
-btn.disabled=false;
-}
-},1000);
+// ===== REST TIMER =====
+function startRest() {
+  let time = 45;
+  resting = true;
+  actionBtn.disabled = true;
+  timerInterval = setInterval(() => {
+    timer.innerText = time + "s Rest";
+    time--;
+    if(time < 0){
+      clearInterval(timerInterval);
+      timer.innerText = "";
+      resting = false;
+      actionBtn.disabled = false;
+    }
+  }, 1000);
 }
 
-// ===== FLOW =====
-function next(){
-if(resting) return;
+// ===== WORKOUT FLOW =====
+function nextStep() {
+  if(resting) return;
+  index++;
+  if(index > 0) startRest();
+  renderExercise();
+}
 
-let w=workouts[workoutSelect.value];
-i++;
-
-if(i===0) btn.innerText="Complete";
-
-if(i>0) rest();
-
-if(i>=w.length){
-btn.innerText="Done";
-btn.disabled=true;
-xp+=50;
-sessions++;
-localStorage.xp=xp;
-localStorage.sessions=sessions;
+// ===== INIT =====
 updateStats();
-}
-
-render();
-}
-
-// ===== NAV =====
-function switchTab(tab){
-trainTab.style.display="none";
-progressTab.style.display="none";
-settingsTab.style.display="none";
-
-trainBtn.classList.remove("active");
-progressBtn.classList.remove("active");
-settingsBtn.classList.remove("active");
-
-if(tab==="train"){trainTab.style.display="block";trainBtn.classList.add("active");}
-if(tab==="progress"){progressTab.style.display="block";progressBtn.classList.add("active");}
-if(tab==="settings"){settingsTab.style.display="block";settingsBtn.classList.add("active");}
-
-updateStats();
-}
-
-// ===== RESET =====
-function resetData(){
-if(confirm("Reset everything?")){
-localStorage.clear();
-location.reload();
-}
-}
-
-// INIT
-updateStats();
-render();
+renderExercise();
 </script>
 
 </body>
