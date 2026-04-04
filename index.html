@@ -9,21 +9,37 @@
       --navy: #0B1F3F;
       --green: #00FF7F;
       --white: #FFFFFF;
+      --light-navy: #132A5B;
     }
 
     body {
       margin: 0;
       font-family: 'Arial', sans-serif;
-      background-color: var(--navy);
+      background: var(--navy);
       color: var(--white);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
 
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     header {
-      padding: 40px 20px;
+      width: 100%;
       text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--light-navy), var(--navy));
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
 
     .logo-container {
@@ -35,12 +51,12 @@
     }
 
     .logo-container img {
-      width: 60px;
-      height: 60px;
+      width: 80px;
+      height: 80px;
     }
 
     .logo-name {
-      font-size: 36px;
+      font-size: 48px;
       font-weight: bold;
       color: var(--green);
     }
@@ -48,49 +64,55 @@
     .description {
       font-size: 18px;
       color: var(--white);
-      margin-bottom: 30px;
+      margin: 15px 0 25px 0;
     }
 
     .button {
       display: inline-block;
-      padding: 15px 30px;
-      margin-top: 20px;
+      padding: 15px 35px;
       background-color: var(--green);
       color: var(--navy);
       font-weight: bold;
+      font-size: 16px;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 12px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .button:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 10px var(--green);
+      box-shadow: 0 0 15px var(--green);
     }
 
     section {
+      width: 100%;
       background-color: rgba(255, 255, 255, 0.05);
-      margin: 20px;
-      padding: 20px;
-      border-radius: 12px;
+      margin: 20px 0;
+      padding: 25px 20px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
 
     section h2 {
-      color: var(--green);
       margin-top: 0;
+      color: var(--green);
+      font-size: 28px;
     }
 
     section p {
       color: var(--white);
-      line-height: 1.5;
+      line-height: 1.6;
+      font-size: 16px;
     }
 
     .socials a {
       display: inline-block;
-      margin: 5px 10px 5px 0;
+      margin: 8px 10px;
       color: var(--green);
-      text-decoration: none;
       font-weight: bold;
+      text-decoration: none;
+      font-size: 16px;
     }
 
     .socials a:hover {
@@ -98,44 +120,73 @@
     }
 
     footer {
-      margin-top: auto;
       padding: 20px;
       text-align: center;
-      background-color: rgba(0, 0, 0, 0.2);
       font-size: 14px;
+      background-color: rgba(0,0,0,0.2);
     }
 
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .logo-name {
+        font-size: 32px;
+      }
+
+      .logo-container img {
+        width: 60px;
+        height: 60px;
+      }
+
+      .description {
+        font-size: 16px;
+      }
+
+      .button {
+        padding: 12px 25px;
+        font-size: 14px;
+      }
+
+      section h2 {
+        font-size: 24px;
+      }
+
+      section p, .socials a {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo-container">
-      <img src="RepQuestLogo.png" alt="RepQuest Logo">
-      <div class="logo-name">RepQuest</div>
-    </div>
-    <div class="description">Track your push-ups, crush challenges, and get stronger every day!</div>
-    <a href="PushUpChallenge.html" class="button">Go to Push-Up Challenge</a>
-  </header>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <img src="RepQuestLogo.png" alt="RepQuest Logo">
+        <div class="logo-name">RepQuest</div>
+      </div>
+      <div class="description">Track your push-ups, crush challenges, and get stronger every day!</div>
+      <a href="PushUpChallenge.html" class="button">Go to Push-Up Challenge</a>
+    </header>
 
-  <section>
-    <h2>What is RepQuest?</h2>
-    <p>RepQuest is a simple project I have been working on for myself to improve and keep track of my push-ups.</p>
-  </section>
+    <section>
+      <h2>What is RepQuest?</h2>
+      <p>RepQuest is a simple project I have been working on for myself to improve and keep track of my push-ups.</p>
+    </section>
 
-  <section>
-    <h2>About Me</h2>
-    <p>Hi, I'm Theo, a 17-year-old boy who made RepQuest because I was bored and wanted to work on my coding skills.</p>
-  </section>
+    <section>
+      <h2>About Me</h2>
+      <p>Hi, I'm Theo, a 17-year-old boy who made RepQuest because I was bored and wanted to work on my coding skills.</p>
+    </section>
 
-  <section>
-    <h2>Socials</h2>
-    <div class="socials">
-      <a href="https://www.youtube.com/@ItsToonyTime" target="_blank">YouTube - @ItsToonyTime</a><br>
-      <a href="https://www.snapchat.com/add/t49474294" target="_blank">Snapchat - @t49474294</a><br>
-      <a href="https://www.tiktok.com/@delivered_4_her" target="_blank">TikTok - @delivered_4_her</a>
-    </div>
-  </section>
+    <section>
+      <h2>Socials</h2>
+      <div class="socials">
+        <a href="https://www.youtube.com/@ItsToonyTime" target="_blank">YouTube - @ItsToonyTime</a><br>
+        <a href="https://www.snapchat.com/add/t49474294" target="_blank">Snapchat - @t49474294</a><br>
+        <a href="https://www.tiktok.com/@delivered_4_her" target="_blank">TikTok - @delivered_4_her</a>
+      </div>
+    </section>
+  </div>
 
   <footer>
     &copy; 2026 RepQuest. All rights reserved.
