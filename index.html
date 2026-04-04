@@ -14,6 +14,7 @@ body{
   color:white;
 }
 
+/* CONTAINER */
 .container{max-width:500px;margin:auto;padding:15px;}
 
 /* HEADER */
@@ -25,6 +26,7 @@ body{
   border-radius:15px;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(10px);
+  font-size:0.9rem;
 }
 
 /* CALENDAR */
@@ -38,6 +40,7 @@ body{
   display:grid;
   grid-template-columns: repeat(7,1fr);
   gap:5px;
+  margin-bottom:15px;
 }
 
 .day-name{
@@ -58,9 +61,7 @@ body{
   border:1px solid rgba(255,255,255,0.1);
   transition:0.2s;
 }
-
 .day:hover{transform:scale(1.05);}
-
 .today{border:2px solid #22c55e;}
 .done{background:#22c55e;color:black;}
 .multi{background:#a855f7;color:white;font-weight:600;}
@@ -73,6 +74,9 @@ body{
   padding:20px;
   text-align:center;
   backdrop-filter:blur(15px);
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.37);
+  transition:all 0.3s ease;
 }
 
 /* CIRCLE */
@@ -85,24 +89,26 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  transition:all 0.5s ease;
 }
 
 .inner{
   width:120px;
   height:120px;
   border-radius:50%;
-  background:#020617;
+  background:rgba(0,0,0,0.6);
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:1.2rem;
+  backdrop-filter: blur(15px);
+  border:1px solid rgba(255,255,255,0.1);
 }
 
 /* TEXT */
-.exercise{font-size:1.3rem;font-weight:600;}
-.reps{opacity:0.7;}
-.setinfo{opacity:0.6;font-size:0.8rem;}
-
+.exercise{font-size:1.3rem;font-weight:600;transition:0.3s;}
+.reps{opacity:0.7;transition:0.3s;}
+.setinfo{opacity:0.6;font-size:0.8rem;transition:0.3s;}
 .timer{font-size:2rem;margin-top:10px;}
 
 /* BUTTON */
@@ -115,9 +121,31 @@ button{
   background:#22c55e;
   font-weight:600;
   cursor:pointer;
+  transition:all 0.2s ease;
 }
-
+button:hover{transform:scale(1.05);}
 .secondary{background:#334155;color:white;}
+
+/* FADE-IN ANIMATION */
+.fade-in{animation:fadeIn 0.5s ease forwards;opacity:0;}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* ACHIEVEMENT POPUP */
+#achievementPopup{
+  position:fixed;top:20%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(15px);
+  padding:25px 35px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.2);
+  color:white;
+  font-weight:600;
+  text-align:center;
+  z-index:1000;
+  transition:transform 0.3s ease;
+}
+#achievementPopup.show{transform:translate(-50%,-50%) scale(1);}
 </style>
 </head>
 
@@ -153,6 +181,13 @@ button{
 </div>
 
 </div>
+
+<!-- Achievement Popup -->
+<div id="achievementPopup"></div>
+<footer style="text-align:center;color:white;opacity:0.5;margin:15px;">Made by Theo</footer>
+
+<!-- Confetti library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
@@ -193,136 +228,159 @@ const calendar=document.getElementById("calendar");
 
 // STATS
 function updateStats(){
-xpEl.innerText=xp;
-levelEl.innerText=Math.floor(xp/100)+1;
-streakEl.innerText=Object.keys(completedDays).length;
+  xpEl.innerText=xp;
+  levelEl.innerText=Math.floor(xp/100)+1;
+  streakEl.innerText=Object.keys(completedDays).length;
 }
 
 // CIRCLE
 function updateCircle(){
-let p=totalReps/100;
-circle.style.background=`conic-gradient(#22c55e ${p*360}deg,#1e293b ${p*360}deg)`;
-percent.innerText=totalReps+"/100";
+  let p=totalReps/100;
+  circle.style.background=`conic-gradient(#22c55e ${p*360}deg,#1e293b ${p*360}deg)`;
+  percent.innerText=totalReps+"/100";
 }
 
 // RENDER
 function render(){
-if(i<0){
-exercise.innerText="Ready?";
-reps.innerText="";
-setinfo.innerText="";
-updateCircle();
-return;
-}
+  if(i<0){
+    exercise.innerText="Ready?";
+    reps.innerText="";
+    setinfo.innerText="";
+    updateCircle();
+    return;
+  }
 
-if(i>=workout.length){
-exercise.innerText="Complete";
-btn.disabled=true;
+  if(i>=workout.length){
+    exercise.innerText="Complete";
+    btn.disabled=true;
 
-xp+=50;
-localStorage.setItem("xp",xp);
+    xp+=50;
+    localStorage.setItem("xp",xp);
 
-let today=new Date().toISOString().split("T")[0];
-completedDays[today]=(completedDays[today]||0)+1;
-localStorage.setItem("completedDays",JSON.stringify(completedDays));
+    let today=new Date().toISOString().split("T")[0];
+    completedDays[today]=(completedDays[today]||0)+1;
+    localStorage.setItem("completedDays",JSON.stringify(completedDays));
 
-renderCalendar();
-updateStats();
-return;
-}
+    renderCalendar();
+    updateStats();
+    showAchievement("🎉 Completed 100 Push-ups Today!");
+    return;
+  }
 
-exercise.innerText=workout[i][0];
-reps.innerText=workout[i][1]+" reps";
-setinfo.innerText=`Set ${i+1}/10`;
-updateCircle();
+  exercise.innerText=workout[i][0];
+  reps.innerText=workout[i][1]+" reps";
+  setinfo.innerText=`Set ${i+1}/10`;
+  updateCircle();
+  animateElements();
 }
 
 // REST
 function rest(){
-let t=45;
-resting=true;
-btn.disabled=true;
+  let t=45;
+  resting=true;
+  btn.disabled=true;
 
-timerInt=setInterval(()=>{
-timer.innerText=t+"s";
-t--;
-if(t<0){
-clearInterval(timerInt);
-timer.innerText="";
-resting=false;
-btn.disabled=false;
+  timerInt=setInterval(()=>{
+    timer.innerText=t+"s";
+    t--;
+    if(t<0){
+      clearInterval(timerInt);
+      timer.innerText="";
+      resting=false;
+      btn.disabled=false;
+    }
+  },1000);
 }
-},1000);
+
+// ANIMATION
+function animateElements(){
+  [exercise,reps,setinfo,percent].forEach(el=>{
+    el.classList.remove('fade-in');
+    void el.offsetWidth;
+    el.classList.add('fade-in');
+  });
+}
+
+// ACHIEVEMENT POPUP
+function showAchievement(message){
+  const popup=document.getElementById('achievementPopup');
+  popup.innerText=message;
+  popup.classList.add('show');
+
+  confetti({
+    particleCount:150,
+    spread:70,
+    origin:{y:0.6}
+  });
+
+  setTimeout(()=>{popup.classList.remove('show');},2500);
 }
 
 // FLOW
 btn.onclick=()=>{
-if(resting) return;
-i++;
-if(i>0){
-totalReps+=workout[i-1][1];
-rest();
-}
-render();
+  if(resting) return;
+  i++;
+  if(i>0) totalReps+=workout[i-1][1];
+  rest();
+  render();
 };
 
 // RESET
 resetBtn.onclick=()=>{
-i=-1;
-totalReps=0;
-btn.disabled=false;
-render();
+  i=-1;
+  totalReps=0;
+  btn.disabled=false;
+  render();
 };
 
 // CALENDAR
 function renderCalendar(){
-calendar.innerHTML="";
+  calendar.innerHTML="";
 
-let now=new Date();
-let year=now.getFullYear();
-let month=now.getMonth();
+  let now=new Date();
+  let year=now.getFullYear();
+  let month=now.getMonth();
 
-document.getElementById("month").innerText=
-now.toLocaleString("default",{month:"long"})+" "+year;
+  document.getElementById("month").innerText=
+    now.toLocaleString("default",{month:"long"})+" "+year;
 
-let firstDay=new Date(year,month,1).getDay();
-let days=new Date(year,month+1,0).getDate();
+  let firstDay=new Date(year,month,1).getDay();
+  let days=new Date(year,month+1,0).getDate();
 
-let names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-names.forEach(n=>{
-let el=document.createElement("div");
-el.className="day-name";
-el.innerText=n;
-calendar.appendChild(el);
-});
+  let names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  names.forEach(n=>{
+    let el=document.createElement("div");
+    el.className="day-name";
+    el.innerText=n;
+    calendar.appendChild(el);
+  });
 
-for(let i=0;i<firstDay;i++){
-calendar.appendChild(document.createElement("div"));
-}
+  for(let i=0;i<firstDay;i++){
+    calendar.appendChild(document.createElement("div"));
+  }
 
-for(let d=1;d<=days;d++){
-let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  for(let d=1;d<=days;d++){
+    let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let div=document.createElement("div");
+    div.className="day";
 
-let div=document.createElement("div");
-div.className="day";
+    let today=new Date();
+    if(d===today.getDate()) div.classList.add("today");
 
-let today=new Date();
-if(d===today.getDate()) div.classList.add("today");
+    if(completedDays[dateStr]){
+      if(completedDays[dateStr]===1){
+        div.classList.add("done");
+        div.innerText="1";
+      }else{
+        div.classList.add("multi");
+        div.innerText=completedDays[dateStr];
+      }
+    }else{
+      div.innerText=d;
+    }
 
-if(completedDays[dateStr]){
-if(completedDays[dateStr]===1){
-div.classList.add("done");
-div.innerText="1";
-}else{
-div.classList.add("multi");
-div.innerText=completedDays[dateStr];
-}
-}else{
-div.innerText=d;
-}
-
-calendar.appendChild(div);
-}
+    calendar.appendChild(div);
+  }
 }
 
 // INIT
