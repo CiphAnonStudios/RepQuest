@@ -14,10 +14,8 @@ body{
   color:white;
 }
 
-/* CONTAINER */
 .container{max-width:500px;margin:auto;padding:15px;}
 
-/* HEADER */
 .top{
   display:flex;
   justify-content:space-between;
@@ -27,13 +25,6 @@ body{
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(10px);
   font-size:0.9rem;
-}
-
-/* CALENDAR */
-.calendar-header{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:5px;
 }
 
 #calendar{
@@ -59,27 +50,20 @@ body{
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,0.1);
-  transition:0.2s;
 }
-.day:hover{transform:scale(1.05);}
-.today{border:2px solid #22c55e;}
-.done{background:#a855f7;color:white;font-weight:600;} /* Purple for today if done */
-.completed{background:#22c55e;color:black;} /* Green for past completed days */
 
-/* CARD */
+.today{border:2px solid #22c55e;}
+.done{background:#22c55e;color:black;}
+.multi{background:#a855f7;color:white;font-weight:600;}
+
 .card{
-  margin-top:15px;
   background:rgba(255,255,255,0.05);
   border-radius:25px;
   padding:20px;
   text-align:center;
   backdrop-filter:blur(15px);
-  border:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 8px 32px rgba(0,0,0,0.37);
-  transition:all 0.3s ease;
 }
 
-/* CIRCLE */
 .circle{
   width:150px;
   height:150px;
@@ -89,29 +73,18 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:all 0.5s ease;
 }
 
 .inner{
   width:120px;
   height:120px;
   border-radius:50%;
-  background:rgba(0,0,0,0.6);
+  background:#020617;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:1.2rem;
-  backdrop-filter: blur(15px);
-  border:1px solid rgba(255,255,255,0.1);
 }
 
-/* TEXT */
-.exercise{font-size:1.3rem;font-weight:600;transition:0.3s;}
-.reps{opacity:0.7;transition:0.3s;}
-.setinfo{opacity:0.6;font-size:0.8rem;transition:0.3s;}
-.timer{font-size:2rem;margin-top:10px;}
-
-/* BUTTON */
 button{
   margin-top:10px;
   width:100%;
@@ -119,33 +92,8 @@ button{
   border:none;
   border-radius:15px;
   background:#22c55e;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.2s ease;
 }
-button:hover{transform:scale(1.05);}
 .secondary{background:#334155;color:white;}
-
-/* FADE-IN ANIMATION */
-.fade-in{animation:fadeIn 0.5s ease forwards;opacity:0;}
-@keyframes fadeIn{to{opacity:1;}}
-
-/* ACHIEVEMENT POPUP */
-#achievementPopup{
-  position:fixed;top:20%;left:50%;
-  transform:translate(-50%,-50%) scale(0);
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(15px);
-  padding:25px 35px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,0.2);
-  color:white;
-  font-weight:600;
-  text-align:center;
-  z-index:1000;
-  transition:transform 0.3s ease;
-}
-#achievementPopup.show{transform:translate(-50%,-50%) scale(1);}
 </style>
 </head>
 
@@ -158,23 +106,18 @@ button:hover{transform:scale(1.05);}
 <div>Streak: <span id="streak">0</span></div>
 </div>
 
-<!-- CALENDAR -->
-<div class="calendar-header">
 <div id="month"></div>
-</div>
 <div id="calendar"></div>
 
-<!-- WORKOUT -->
 <div class="card">
 <div class="circle" id="circle">
 <div class="inner" id="percent">0/100</div>
 </div>
 
-<div class="exercise" id="exercise">Ready?</div>
-<div class="reps" id="reps"></div>
-<div class="setinfo" id="setinfo"></div>
-
-<div class="timer" id="timer"></div>
+<div id="exercise">Ready?</div>
+<div id="reps"></div>
+<div id="setinfo"></div>
+<div id="timer"></div>
 
 <button id="btn">Start</button>
 <button class="secondary" id="resetBtn">Reset</button>
@@ -182,15 +125,17 @@ button:hover{transform:scale(1.05);}
 
 </div>
 
-<!-- Achievement Popup -->
-<div id="achievementPopup"></div>
-<footer style="text-align:center;color:white;opacity:0.5;margin:15px;">Made by Theo.</footer>
-
-<!-- Confetti library -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
+
+// ✅ LOCAL DATE FIX (IMPORTANT)
+function getLocalDate(){
+  let d = new Date();
+  let year = d.getFullYear();
+  let month = String(d.getMonth()+1).padStart(2,'0');
+  let day = String(d.getDate()).padStart(2,'0');
+  return `${year}-${month}-${day}`;
+}
 
 const workout=[
 ["Normal Push-ups",10],
@@ -207,15 +152,9 @@ const workout=[
 
 let i=-1,totalReps=0,resting=false,timerInt;
 
-// RESET localStorage automatically for a fresh start
-localStorage.setItem("xp","0");
-localStorage.setItem("completedDays",JSON.stringify({}));
-
-// STORAGE
-let xp=+localStorage.getItem("xp");
+let xp=+localStorage.getItem("xp")||0;
 let completedDays=JSON.parse(localStorage.getItem("completedDays")||"{}");
 
-// UI
 const xpEl=document.getElementById("xp");
 const levelEl=document.getElementById("level");
 const streakEl=document.getElementById("streak");
@@ -261,14 +200,12 @@ function render(){
     xp+=50;
     localStorage.setItem("xp",xp);
 
-    // Save today's count
-    let today=new Date().toISOString().split("T")[0];
+    let today=getLocalDate(); // ✅ FIXED
     completedDays[today]=(completedDays[today]||0)+1;
     localStorage.setItem("completedDays",JSON.stringify(completedDays));
 
     renderCalendar();
     updateStats();
-    showAchievement("🎉 Completed 100 Push-ups Today!");
     return;
   }
 
@@ -276,7 +213,6 @@ function render(){
   reps.innerText=workout[i][1]+" reps";
   setinfo.innerText=`Set ${i+1}/10`;
   updateCircle();
-  animateElements();
 }
 
 // REST
@@ -297,30 +233,6 @@ function rest(){
   },1000);
 }
 
-// ANIMATION
-function animateElements(){
-  [exercise,reps,setinfo,percent].forEach(el=>{
-    el.classList.remove('fade-in');
-    void el.offsetWidth;
-    el.classList.add('fade-in');
-  });
-}
-
-// ACHIEVEMENT POPUP
-function showAchievement(message){
-  const popup=document.getElementById('achievementPopup');
-  popup.innerText=message;
-  popup.classList.add('show');
-
-  confetti({
-    particleCount:150,
-    spread:70,
-    origin:{y:0.6}
-  });
-
-  setTimeout(()=>{popup.classList.remove('show');},2500);
-}
-
 // FLOW
 btn.onclick=()=>{
   if(resting) return;
@@ -330,15 +242,10 @@ btn.onclick=()=>{
   render();
 };
 
-// RESET
 resetBtn.onclick=()=>{
   i=-1;
   totalReps=0;
   btn.disabled=false;
-  localStorage.setItem("xp","0");
-  localStorage.setItem("completedDays",JSON.stringify({}));
-  xp=0;
-  completedDays={};
   render();
 };
 
@@ -368,21 +275,25 @@ function renderCalendar(){
     calendar.appendChild(document.createElement("div"));
   }
 
+  let todayStr=getLocalDate(); // ✅ FIXED
+
   for(let d=1;d<=days;d++){
     let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     let div=document.createElement("div");
     div.className="day";
 
-    let today=new Date();
-    if(d===today.getDate() && completedDays[dateStr]){
-      div.classList.add("done"); // today done = purple
-    } else if(d===today.getDate()){
-      div.classList.add("today");
-    } else if(completedDays[dateStr]){
-      div.classList.add("completed"); // past completed = green
-    }
+    if(dateStr===todayStr) div.classList.add("today");
 
-    div.innerText=completedDays[dateStr] || d;
+    if(completedDays[dateStr]){
+      if(completedDays[dateStr]>1){
+        div.classList.add("multi"); // purple
+      } else {
+        div.classList.add("done"); // green
+      }
+      div.innerText=completedDays[dateStr];
+    } else {
+      div.innerText=d;
+    }
 
     calendar.appendChild(div);
   }
