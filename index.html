@@ -3,41 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RepQuest - Glass UI</title>
+<title>RepQuest</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
   background:linear-gradient(180deg,#0f172a,#020617);
   color:white;
-  -webkit-font-smoothing: antialiased;
 }
 
-.container{
-  max-width:500px;
-  margin:auto;
-  padding:15px;
-}
+.container{max-width:500px;margin:auto;padding:15px;}
 
 /* HEADER */
 .top{
-  font-size:0.9rem;
   display:flex;
   justify-content:space-between;
   margin-bottom:10px;
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.05);
-  border-radius: 20px;
-  padding:10px 15px;
+  padding:10px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
 }
 
 /* CALENDAR */
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:5px;
+}
+
 #calendar{
   display:grid;
   grid-template-columns: repeat(7,1fr);
   gap:5px;
-  margin-bottom:15px;
+}
+
+.day-name{
+  font-size:0.6rem;
+  opacity:0.6;
+  text-align:center;
 }
 
 .day{
@@ -47,27 +54,26 @@ body{
   align-items:center;
   justify-content:center;
   font-size:0.7rem;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px);
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
 }
-.day:hover{
-  transform: scale(1.05);
+
+.today{
+  border:2px solid #22c55e;
 }
+
 .done{background:#22c55e;color:black;}
 .multi{background:#a855f7;color:white;font-weight:600;}
 
-/* WORKOUT CARD */
+/* CARD */
 .card{
-  background: rgba(255,255,255,0.05);
+  margin-top:15px;
+  background:rgba(255,255,255,0.05);
   border-radius:25px;
-  padding:25px;
+  padding:20px;
   text-align:center;
-  margin-bottom:20px;
-  backdrop-filter: blur(15px);
-  border:1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+  backdrop-filter:blur(15px);
 }
 
 /* CIRCLE */
@@ -76,7 +82,7 @@ body{
   height:150px;
   border-radius:50%;
   background:conic-gradient(#22c55e 0deg,#1e293b 0deg);
-  margin:0 auto 15px;
+  margin:auto;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -86,83 +92,79 @@ body{
   width:120px;
   height:120px;
   border-radius:50%;
-  background: rgba(255,255,255,0.05);
+  background:#020617;
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:1.2rem;
-  backdrop-filter: blur(15px);
-  border:1px solid rgba(255,255,255,0.1);
 }
 
 /* TEXT */
-.exercise{font-size:1.5rem;font-weight:600;}
+.exercise{font-size:1.3rem;font-weight:600;}
 .reps{opacity:0.7;}
-.setinfo{opacity:0.6;font-size:0.9rem;margin-top:5px;}
+.setinfo{opacity:0.6;font-size:0.8rem;}
+
 .timer{font-size:2rem;margin-top:10px;}
 
-/* BUTTONS */
+/* BUTTON */
 button{
-  margin-top:15px;
+  margin-top:10px;
   width:100%;
   padding:15px;
   border:none;
-  border-radius:20px;
+  border-radius:15px;
   background:#22c55e;
   font-weight:600;
-  cursor:pointer;
-  transition: all 0.3s ease;
 }
-button:hover{transform:scale(1.05);}
-.secondary{
-  background:#334155;
-  color:white;
-}
-.secondary:hover{transform:scale(1.05);}
+
+.secondary{background:#334155;color:white;}
 </style>
 </head>
+
 <body>
 <div class="container">
 
 <div class="top">
-<div>XP: <span id="xp">0</span></div>
-<div>Lvl: <span id="level">1</span></div>
-<div>Streak: <span id="streak">0</span></div>
+<div>XP: <span id="xp"></span></div>
+<div>Lvl: <span id="level"></span></div>
+<div>Streak: <span id="streak"></span></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar-header">
+<div id="month"></div>
 </div>
 
 <div id="calendar"></div>
 
+<!-- WORKOUT -->
 <div class="card">
-<div class="circle" id="circle"><div class="inner" id="percent">0%</div></div>
+
+<div class="circle" id="circle">
+<div class="inner" id="percent">0/100</div>
+</div>
+
 <div class="exercise" id="exercise">Ready?</div>
 <div class="reps" id="reps"></div>
 <div class="setinfo" id="setinfo"></div>
+
 <div class="timer" id="timer"></div>
-<button id="btn">Start Workout</button>
-<button class="secondary" id="resetBtn">Reset Session</button>
+
+<button id="btn">Start</button>
+<button class="secondary" id="resetBtn">Reset</button>
+
 </div>
 
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", ()=>{
-const exercise = document.getElementById("exercise");
-const reps = document.getElementById("reps");
-const setinfo = document.getElementById("setinfo");
-const timer = document.getElementById("timer");
-const btn = document.getElementById("btn");
-const resetBtn = document.getElementById("resetBtn");
-const circle = document.getElementById("circle");
-const percent = document.getElementById("percent");
-const calendar = document.getElementById("calendar");
-const xpSpan = document.getElementById("xp");
-const level = document.getElementById("level");
-const streakSpan = document.getElementById("streak");
+document.addEventListener("DOMContentLoaded",()=>{
 
 const workout=[
-["Push-ups",10],
+["Normal Push-ups",10],
 ["Wide Push-ups",10],
 ["Diamond Push-ups",10],
+["Reverse Push-ups",10],
 ["Pike Push-ups",10],
 ["Decline Push-ups",10],
 ["Archer Push-ups",10],
@@ -171,92 +173,156 @@ const workout=[
 ["Slow Push-ups",10]
 ];
 
-let i=-1,resting=false,timerInt;
+let i=-1,totalReps=0,resting=false,timerInt;
 
-let xp=+localStorage.getItem('xp')||0;
-let streak=+localStorage.getItem('streak')||0;
-let completedDays=JSON.parse(localStorage.getItem('completedDays')||"{}");
+// STORAGE
+let xp=+localStorage.xp||0;
+let completedDays=JSON.parse(localStorage.completedDays||"{}");
 
-// Update Stats
-function updateStats(){xpSpan.innerText=xp;level.innerText=Math.floor(xp/100)+1;streakSpan.innerText=streak;}
+// UI
+const exercise=document.getElementById("exercise");
+const reps=document.getElementById("reps");
+const setinfo=document.getElementById("setinfo");
+const timer=document.getElementById("timer");
+const btn=document.getElementById("btn");
+const resetBtn=document.getElementById("resetBtn");
+const percent=document.getElementById("percent");
+const circle=document.getElementById("circle");
+const calendar=document.getElementById("calendar");
 
-// Update Circle
+// STATS
+function updateStats(){
+xpEl.innerText=xp;
+level.innerText=Math.floor(xp/100)+1;
+streak.innerText=Object.keys(completedDays).length;
+}
+
+// CIRCLE
 function updateCircle(){
-  let percentVal=Math.max(0,(i+1)/workout.length);
-  let deg=percentVal*360;
-  circle.style.background=`conic-gradient(#22c55e ${deg}deg,#1e293b ${deg}deg)`;
-  percent.innerText=Math.round(percentVal*100)+"%";
+let p=totalReps/100;
+circle.style.background=`conic-gradient(#22c55e ${p*360}deg,#1e293b ${p*360}deg)`;
+percent.innerText=totalReps+"/100";
 }
 
-// Render workout
+// RENDER
 function render(){
-  if(i<0){exercise.innerText="Ready?";reps.innerText="";setinfo.innerText="";updateCircle();return;}
-  if(i>=workout.length){
-    exercise.innerText="Workout Complete";reps.innerText="";setinfo.innerText="";btn.disabled=true;
-    xp+=50;localStorage.setItem('xp',xp);
-    markDay();renderCalendar();updateStats();percent.innerText="100%";
-    return;
-  }
-  exercise.innerText=workout[i][0];
-  reps.innerText=workout[i][1]+" reps";
-  setinfo.innerText=`Set ${i+1}/${workout.length}`;
-  updateCircle();
+if(i<0){
+exercise.innerText="Ready?";
+reps.innerText="";
+setinfo.innerText="";
+updateCircle();
+return;
 }
 
-// Rest
-function rest(){let t=45;resting=true;btn.disabled=true;
-timerInt=setInterval(()=>{timer.innerText=t+"s";t--;if(t<0){clearInterval(timerInt);timer.innerText="";resting=false;btn.disabled=false;}},1000);}
+if(i>=workout.length){
+exercise.innerText="Complete";
+btn.disabled=true;
+xp+=50;
+localStorage.xp=xp;
 
-// Button flow
-btn.addEventListener("click",()=>{
-  if(resting) return;
-  i++;if(i>0) rest();
-  render();
-});
+let today=new Date().toISOString().split("T")[0];
+completedDays[today]=(completedDays[today]||0)+1;
+localStorage.completedDays=JSON.stringify(completedDays);
 
-// Reset
-resetBtn.addEventListener("click", ()=>{
-  i=-1;render();
-});
-
-// Calendar & Progress
-function markDay(){
-  let date=new Date().toISOString().split("T")[0];
-  completedDays[date]=(completedDays[date]||0)+1;
-  localStorage.setItem('completedDays',JSON.stringify(completedDays));
-  streak=updateStreak();localStorage.setItem('streak',streak);
+renderCalendar();
+updateStats();
+return;
 }
 
-function updateStreak(){
-  let dates=Object.keys(completedDays).sort();
-  if(dates.length===0) return 0;
-  let streakCount=0;
-  let today=new Date();
-  for(let i=dates.length-1;i>=0;i--){
-    let d=new Date(dates[i]);
-    if((today-d)/(1000*60*60*24)===streakCount) streakCount++;
-    else break;
-  }
-  return streakCount;
+exercise.innerText=workout[i][0];
+reps.innerText=workout[i][1]+" reps";
+setinfo.innerText=`Set ${i+1}/10`;
+updateCircle();
 }
 
-// Render Calendar
+// REST
+function rest(){
+let t=45;
+resting=true;
+btn.disabled=true;
+
+timerInt=setInterval(()=>{
+timer.innerText=t+"s";
+t--;
+if(t<0){
+clearInterval(timerInt);
+timer.innerText="";
+resting=false;
+btn.disabled=false;
+}
+},1000);
+}
+
+// FLOW
+btn.onclick=()=>{
+if(resting) return;
+i++;
+if(i>0){
+totalReps+=workout[i-1][1];
+rest();
+}
+render();
+};
+
+resetBtn.onclick=()=>{
+i=-1;
+totalReps=0;
+btn.disabled=false;
+render();
+};
+
+// CALENDAR
 function renderCalendar(){
-  calendar.innerHTML="";
-  let now=new Date();
-  let year=now.getFullYear();
-  let month=now.getMonth();
-  let days=new Date(year,month+1,0).getDate();
-  for(let d=1;d<=days;d++){
-    let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    let div=document.createElement("div");
-    div.classList.add("day");div.innerText=d;
-    if(completedDays[dateStr]){
-      if(completedDays[dateStr]===1){div.classList.add("done");div.innerText="1";}
-      else{div.classList.add("multi");div.innerText=completedDays[dateStr];}
-    }
-    calendar.appendChild(div);
-  }
+calendar.innerHTML="";
+
+let now=new Date();
+let year=now.getFullYear();
+let month=now.getMonth();
+
+document.getElementById("month").innerText=
+now.toLocaleString("default",{month:"long"})+" "+year;
+
+let firstDay=new Date(year,month,1).getDay();
+let days=new Date(year,month+1,0).getDate();
+
+let dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+dayNames.forEach(d=>{
+let el=document.createElement("div");
+el.className="day-name";
+el.innerText=d;
+calendar.appendChild(el);
+});
+
+// empty slots
+for(let i=0;i<firstDay;i++){
+let empty=document.createElement("div");
+calendar.appendChild(empty);
+}
+
+// days
+for(let d=1;d<=days;d++){
+let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+let div=document.createElement("div");
+div.className="day";
+
+let today=new Date();
+if(d===today.getDate()) div.classList.add("today");
+
+if(completedDays[dateStr]){
+if(completedDays[dateStr]===1){
+div.classList.add("done");
+div.innerText="1";
+}else{
+div.classList.add("multi");
+div.innerText=completedDays[dateStr];
+}
+}else{
+div.innerText=d;
+}
+
+calendar.appendChild(div);
+}
 }
 
 // INIT
@@ -266,5 +332,6 @@ renderCalendar();
 
 });
 </script>
+
 </body>
 </html>
