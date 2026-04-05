@@ -17,12 +17,14 @@
 
   #logo {
     opacity: 0;
-    transition: opacity 1s ease;
-    width: 200px; /* adjust size */
+    width: 200px; /* starting size */
+    transition: opacity 1s ease, transform 1s ease;
   }
 
-  .glow {
-    filter: drop-shadow(0 0 10px #00ff00);
+  .green {
+    filter: drop-shadow(0 0 15px #00ff00);
+    transform: scale(1.2); /* makes logo bigger */
+    opacity: 1;
   }
 </style>
 </head>
@@ -32,21 +34,21 @@
   <script>
     const logo = document.getElementById('logo');
 
-    // Fade in original logo
+    // Initial fade in
     setTimeout(() => {
       logo.style.opacity = 1;
-    }, 100); // small delay to trigger CSS transition
+    }, 100);
 
-    // After fade in, change to green logo with glow
+    // Fade to green, bigger, with glow
     setTimeout(() => {
       logo.src = 'RepQuestLogoGreen.png';
-      logo.classList.add('glow');
-    }, 1500); // 1.5s after initial fade
+      logo.classList.add('green');
+    }, 1500);
 
-    // After showing green logo, redirect to home
+    // Redirect to home page
     setTimeout(() => {
       window.location.href = 'home.html';
-    }, 3000); // 3s total
+    }, 3000);
   </script>
 </body>
 </html>
