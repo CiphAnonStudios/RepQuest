@@ -1,1 +1,52 @@
+<!-- loading.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepQuest Loading</title>
+<style>
+  body, html {
+    margin: 0;
+    height: 100%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
+  #logo {
+    opacity: 0;
+    transition: opacity 1s ease;
+    width: 200px; /* adjust size */
+  }
+
+  .glow {
+    filter: drop-shadow(0 0 10px #00ff00);
+  }
+</style>
+</head>
+<body>
+  <img id="logo" src="RepQuestLogo.png" alt="RepQuest Logo">
+
+  <script>
+    const logo = document.getElementById('logo');
+
+    // Fade in original logo
+    setTimeout(() => {
+      logo.style.opacity = 1;
+    }, 100); // small delay to trigger CSS transition
+
+    // After fade in, change to green logo with glow
+    setTimeout(() => {
+      logo.src = 'RepQuestLogoGreen.png';
+      logo.classList.add('glow');
+    }, 1500); // 1.5s after initial fade
+
+    // After showing green logo, redirect to home
+    setTimeout(() => {
+      window.location.href = 'home.html';
+    }, 3000); // 3s total
+  </script>
+</body>
+</html>
