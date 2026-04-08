@@ -137,6 +137,41 @@ button:hover{transform:scale(1.05);}
   from{transform:scale(1);}
   to{transform:scale(1.2);}
 }
+
+  .add-btn {
+  background-color: #22c55e;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  transform: scale(1.1);
+}
+
+.rep-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  padding: 10px;
+}
+
+.rep-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: 5px;
+  background-size: 100% 100%;
+  background-position: center;
+  transition: 0.2s ease-in-out;
+}
+
 </style>
 </head>
 
@@ -161,6 +196,19 @@ button:hover{transform:scale(1.05);}
 <div id="calendar"></div>
 
 <div class="card glass">
+  <button class="add-btn button-round" style="position: absolute; top: 10px; right: 10px;">+</button>
+  <div class="rep-row" style="display: none; position: absolute; top: 30px; right: 30px;">
+    <div id="rep-1" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-2" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-3" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-4" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-5" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-6" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-7" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-8" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-9" class="rep-image"><img src="" alt=""></div>
+    <div id="rep-10" class="rep-image"><img src="" alt=""></div>
+  </div>
 <div class="circle" id="circle">
 <div class="inner glass" id="percent">0/100</div>
 </div>
@@ -367,6 +415,20 @@ document.getElementById("resetProgressBtn").onclick = () => {
   }
 };
 });
+
+  document.getElementById("addBtn").onclick = () => {
+  document.querySelector(".rep-row").style.display = "flex";
+};
+
+let currentRep = 1;
+document.getElementById("btn").onclick = () => {
+  document.querySelector(".rep-row").style.display = "flex";
+  for (let i = 1; i <= 10; i++) {
+    let repImage = document.getElementById(rep-${i});
+    repImage.style.backgroundImage = url(rep${i}.jpg);
+  }
+  currentRep++;
+};
 </script>
 
 </body>
