@@ -1,40 +1,40 @@
+<!-- loading.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RepQuest Loading</title>
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+ <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 <style>
-  :root {
-    --navy: #0B1F3F;
-    --green: #00FF7F;
-  }
-
-  html, body {
+ :root {
+      --navy: #0B1F3F;
+      --green: #00FF7F;
+      --white: #FFFFFF;
+      --light-navy: #132A5B;
+    }
+  body, html {
     margin: 0;
     height: 100%;
     background: var(--navy);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Poppins', sans-serif;
   }
 
   #logo {
-    width: 200px;
     opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+    width: 200px; /* starting size */
+    transition: opacity 1s ease, transform 1s ease;
   }
 
-  #logo.active {
+  .green {
+    filter: drop-shadow(0 0 15px #00ff00);
+    transform: scale(1.2); /* makes logo bigger */
     opacity: 1;
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 20px var(--green));
   }
 </style>
 </head>
@@ -44,20 +44,21 @@
   <script>
     const logo = document.getElementById('logo');
 
-    // Fade in and scale up
+    // Initial fade in
     setTimeout(() => {
-      logo.classList.add('active');
+      logo.style.opacity = 1;
     }, 100);
 
-    // Swap logo to green after a short delay
+    // Fade to green, bigger, with glow
     setTimeout(() => {
       logo.src = 'RepQuestLogoGreen.png';
-    }, 1200);
+      logo.classList.add('green');
+    }, 1500);
 
     // Redirect to home page
     setTimeout(() => {
       window.location.href = 'home.html';
-    }, 2800);
+    }, 3000);
   </script>
 </body>
 </html>
