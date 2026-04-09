@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepQuest Cardio</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy:#0B1F3F;
+  --green:#22c55e;
+  --white:#fff;
+}
+
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:var(--navy);
+  color:white;
+}
+
+.container{max-width:500px;margin:auto;padding:15px;}
+
+.glass{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  margin-bottom:10px;
+}
+
+.card{padding:20px;text-align:center;}
+
+.big{
+  font-size:2.5rem;
+  font-weight:600;
+}
+
+.stat{opacity:0.7;margin-top:5px;}
+
+button{
+  margin-top:10px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:15px;
+  background:var(--green);
+  font-weight:600;
+  cursor:pointer;
+}
+
+.secondary{
+  background:#334155;
+  color:white;
+}
+
+#calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-bottom:15px;
+}
+
+.day{
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  font-size:0.75rem;
+}
+
+.done{background:var(--green);color:black;}
+.today{border:2px solid var(--green);}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="top glass">
+<div>XP: <span id="xp">0</span></div>
+<div>Lvl: <span id="level">1</span></div>
+<div>🔥 <span id="streak">0</span></div>
+</div>
+
+<div id="month"></div>
+<div id="calendar"></div>
+
+<div class="card glass">
+
+<div class="big" id="distance">0.00 mi</div>
+<div class="stat" id="pace">Pace: 0:00 /mi</div>
+<div class="stat" id="calories">Calories: 0</div>
+
+<br>
+
+<div id="status">Ready to Walk</div>
+
+<button id="btn">Start Walk</button>
+<button class="secondary" id="resetBtn">Reset</button>
+
+</div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+// STORAGE
+let xp = +localStorage.getItem("cardio_xp") || 0;
+let days = JSON.parse(localStorage.getItem("cardio_days") || "{}");
+
+// STATE
+let walking = false;
+let watchId;
+let startTime;
+let lastPos;
+let distance = 0;
+
+// ELEMENTS
+const xpEl = document.getElementById("xp");
+const levelEl = document.getElementById("level");
+const streakEl = document.getElementById("streak");
+
+const distanceEl = document.getElementById("distance");
+const paceEl = document.getElementById("pace");
+const caloriesEl = document.getElementById("calories");
+const statusEl = document.getElementById("status");
+
+// UTILS
+function getDate(){
+  let d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateStats(){
+  xpEl.innerText = xp;
+  levelEl.innerText = Math.floor(xp/100)+1;
+  streakEl.innerText = Object.keys(days).length;
+}
+
+// DISTANCE (Haversine)
+function getDistance(lat1,lon1,lat2,lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+
+  const a = 
+    Math.sin(dLat/2)**2 +
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)**2;
+
+  const c = 2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  return R*c * 0.621371; // miles
+}
+
+// UPDATE UI
+function updateUI(){
+  distanceEl.innerText = distance.toFixed(2)+" mi";
+
+  let time = (Date.now() - startTime)/60000; // minutes
+  let pace = distance > 0 ? time / distance : 0;
+
+  let paceMin = Math.floor(pace);
+  let paceSec = Math.floor((pace - paceMin)*60);
+
+  paceEl.innerText = `Pace: ${paceMin}:${String(paceSec).padStart(2,'0')} /mi`;
+
+  let calories = distance * 100; // rough
+  caloriesEl.innerText = "Calories: " + Math.floor(calories);
+
+  // COMPLETE
+  if(distance >= 5){
+    finishWalk();
+  }
+}
+
+// START
+function startWalk(){
+  if(!navigator.geolocation){
+    alert("GPS not supported");
+    return;
+  }
+
+  walking = true;
+  startTime = Date.now();
+  document.getElementById("btn").innerText = "Stop Walk";
+  statusEl.innerText = "Tracking...";
+
+  watchId = navigator.geolocation.watchPosition(pos=>{
+    let {latitude,longitude} = pos.coords;
+
+    if(lastPos){
+      distance += getDistance(
+        lastPos.lat,lastPos.lon,
+        latitude,longitude
+      );
+    }
+
+    lastPos = {lat:latitude, lon:longitude};
+
+    updateUI();
+
+  }, err=>{
+    alert("Location error");
+  }, {enableHighAccuracy:true});
+}
+
+// STOP
+function stopWalk(){
+  walking = false;
+  navigator.geolocation.clearWatch(watchId);
+  document.getElementById("btn").innerText = "Start Walk";
+  statusEl.innerText = "Paused";
+}
+
+// FINISH
+function finishWalk(){
+  stopWalk();
+
+  // VIBRATE
+  if(navigator.vibrate){
+    navigator.vibrate([300,100,300]);
+  }
+
+  statusEl.innerText = "5 Miles Complete 🎉";
+
+  let today = getDate();
+  days[today] = (days[today]||0)+1;
+
+  xp += 100;
+
+  localStorage.setItem("cardio_xp", xp);
+  localStorage.setItem("cardio_days", JSON.stringify(days));
+
+  updateStats();
+  renderCalendar();
+}
+
+// BUTTON
+document.getElementById("btn").onclick=()=>{
+  walking ? stopWalk() : startWalk();
+};
+
+// RESET
+document.getElementById("resetBtn").onclick=()=>{
+  stopWalk();
+  distance = 0;
+  lastPos = null;
+  distanceEl.innerText = "0.00 mi";
+  paceEl.innerText = "Pace: 0:00 /mi";
+  caloriesEl.innerText = "Calories: 0";
+};
+
+// CALENDAR
+function renderCalendar(){
+  const cal = document.getElementById("calendar");
+  cal.innerHTML="";
+
+  let now=new Date();
+  let year=now.getFullYear();
+  let month=now.getMonth();
+
+  document.getElementById("month").innerText =
+    now.toLocaleString("default",{month:"long"})+" "+year;
+
+  let firstDay=new Date(year,month,1).getDay();
+  let total=new Date(year,month+1,0).getDate();
+
+  for(let i=0;i<firstDay;i++) cal.appendChild(document.createElement("div"));
+
+  let today=getDate();
+
+  for(let d=1; d<=total; d++){
+    let dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let div=document.createElement("div");
+    div.className="day glass";
+
+    if(dateStr===today) div.classList.add("today");
+
+    if(days[dateStr]){
+      div.classList.add("done");
+      div.innerText="✓";
+    } else {
+      div.innerText=d;
+    }
+
+    cal.appendChild(div);
+  }
+}
+
+// INIT
+updateStats();
+renderCalendar();
+
+});
+</script>
+
+</body>
+</html>
