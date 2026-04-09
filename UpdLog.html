@@ -1,1 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepQuest Update Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
+<style>
+:root {
+  --navy:#0B1F3F;
+  --green:#22c55e;
+  --white:#fff;
+}
+
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:var(--navy);
+  color:white;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:15px;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.glass{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  margin-bottom:15px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.header{
+  padding:15px;
+}
+
+.header:hover{
+  background:rgba(255,255,255,0.1);
+}
+
+.version{
+  font-weight:600;
+  color:var(--green);
+}
+
+.date{
+  opacity:0.6;
+  font-size:0.85rem;
+  margin-top:3px;
+}
+
+.changes{
+  margin-left:10px;
+  margin-top:5px;
+  list-style:none;
+  padding-left:0;
+  display:none; /* collapsed by default */
+}
+
+.changes li::before{
+  content:"[v] ";
+  color:var(--green);
+  font-weight:600;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>RepQuest Update Log</h1>
+<div id="updates"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+const updates = [
+  {
+    version: "RepQuest v5 /upd-5",
+    date: "Release - 4/02/26",
+    changes: [
+      "Loading page",
+      "Logo",
+      "Home page",
+      "- Push-up Challenge",
+      "- what is repquest",
+      "- about me",
+      "- socials",
+      "--- snapchat",
+      "Push-up Challenge Page",
+      "- Normal Push-ups",
+      "- Wide Push-ups",
+      "- Diamond Push-ups",
+      "- Reverse Push-ups",
+      "- Pike Push-ups",
+      "- Decline Push-ups",
+      "- Archer Push-ups",
+      "- Explosive Push-ups",
+      "- Spiderman Push-ups",
+      "- Slow Push-ups",
+      "Profile section",
+      "- xp",
+      "- level",
+      "- streak",
+      "Working Calendar",
+      "- 100 push ups = green on calendar",
+      "- 200+ push ups = purple on calendar",
+      "Coming Soon Page/character image"
+    ]
+  },
+  {
+    version: "Corechallenge v5-1",
+    date: "1:28PM, 4/08/26",
+    changes: [
+      "New local storage",
+      "Core Challenge",
+      "Core Challenge page",
+      "- Sit-Ups",
+      "- Hollow Hold (10s)",
+      "- Russian Twists (per side)",
+      "- Leg Raises",
+      "- Plank Shoulder Taps (per side)",
+      "- Bicycle Crunches (per side)",
+      "- V-Ups",
+      "- Flutter Kicks (per side)",
+      "- Side Plank Hip Dips (per side)",
+      "- Mountain Climbers (per side)",
+      "- working calendar",
+      "Profile section",
+      "- xp",
+      "- level",
+      "- streak"
+    ]
+  }
+];
+
+// Render updates
+const container = document.getElementById("updates");
+
+updates.forEach((u,i)=>{
+  const card = document.createElement("div");
+  card.className="glass";
+
+  const header = document.createElement("div");
+  header.className="header";
+  header.innerHTML = `<div class="version">${u.version}</div>
+                      <div class="date">${u.date}</div>`;
+
+  const list = document.createElement("ul");
+  list.className="changes";
+  u.changes.forEach(c=>{
+    const li = document.createElement("li");
+    li.innerText = c;
+    list.appendChild(li);
+  });
+
+  card.appendChild(header);
+  card.appendChild(list);
+  container.appendChild(card);
+
+  // Toggle collapsible
+  header.addEventListener("click",()=>{
+    list.style.display = list.style.display === "block" ? "none" : "block";
+  });
+
+  // First card expanded by default
+  if(i===0){
+    list.style.display="block";
+  }
+});
+});
+</script>
+
+</body>
+</html>
