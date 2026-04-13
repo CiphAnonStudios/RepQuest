@@ -179,7 +179,7 @@ function updateUI(){
   caloriesEl.innerText = "Calories: " + Math.floor(calories);
 
   // COMPLETE
-  if(distance >= 5){
+  if(distance >= 4){
     finishWalk();
   }
 }
@@ -232,7 +232,7 @@ function finishWalk(){
     navigator.vibrate([300,100,300]);
   }
 
-  statusEl.innerText = "5 Miles Complete 🎉";
+  statusEl.innerText = "4 Miles Complete 🎉";
 
   let today = getDate();
   days[today] = (days[today]||0)+1;
@@ -256,7 +256,7 @@ document.getElementById("resetBtn").onclick=()=>{
   stopWalk();
   distance = 0;
   lastPos = null;
-  distanceEl.innerText = "0.00 mi(5mi)";
+  distanceEl.innerText = "0.00 mi(4mi)";
   paceEl.innerText = "Pace: 0:00 /mi";
   caloriesEl.innerText = "Calories: 0";
 };
