@@ -1,1 +1,83 @@
-h
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomePage</title>
+
+<style>
+/* light popup styling (minimal) */
+#tutorial-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.popup-box button {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- POPUP -->
+<div id="tutorial-popup" style="display:none;">
+  <div class="popup-box">
+    <h2>Welcome</h2>
+    <p>Would you like a quick tutorial?</p>
+
+    <button onclick="startTutorial()">Yes</button>
+    <button onclick="skipTutorial()">No</button>
+  </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<h1>Home Page</h1>
+<p>Your fitness app starts here.</p>
+
+<!-- JS -->
+<script>
+window.onload = function () {
+  const seen = localStorage.getItem("tutorialSeen");
+
+  if (!seen) {
+    document.getElementById("tutorial-popup").style.display = "flex";
+  }
+};
+
+function startTutorial() {
+  localStorage.setItem("tutorialSeen", "yes");
+  document.getElementById("tutorial-popup").style.display = "none";
+  alert("Tutorial coming next");
+}
+
+function skipTutorial() {
+  localStorage.setItem("tutorialSeen", "no");
+  document.getElementById("tutorial-popup").style.display = "none";
+}
+</script>
+
+</body>
+</html>
