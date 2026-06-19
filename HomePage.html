@@ -6,7 +6,6 @@
 <title>HomePage</title>
 
 <style>
-/* light popup styling (minimal) */
 #tutorial-popup {
   position: fixed;
   top: 0;
@@ -57,24 +56,18 @@
 <h1>Home Page</h1>
 <p>Your fitness app starts here.</p>
 
-<!-- JS -->
 <script>
 window.onload = function () {
-  const seen = localStorage.getItem("tutorialSeen");
-
-  if (!seen) {
-    document.getElementById("tutorial-popup").style.display = "flex";
-  }
+  // ALWAYS show popup for testing
+  document.getElementById("tutorial-popup").style.display = "flex";
 };
 
 function startTutorial() {
-  localStorage.setItem("tutorialSeen", "yes");
   document.getElementById("tutorial-popup").style.display = "none";
-  alert("Tutorial coming next");
+  alert("Tutorial starting soon");
 }
 
 function skipTutorial() {
-  localStorage.setItem("tutorialSeen", "no");
   document.getElementById("tutorial-popup").style.display = "none";
 }
 </script>
